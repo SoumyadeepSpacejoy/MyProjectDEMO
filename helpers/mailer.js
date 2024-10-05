@@ -21,6 +21,7 @@ const send = async (subject, receiver, otp) => {
         };
 
         await auth.sendMail(receiverObj);
+        return;
     } catch (e) {
         console.log(e.message);
     }

@@ -9,4 +9,5 @@ module.exports = {
         sender: 'helloworldcoding69@gmail.com',
         appPassword: `ugnn tnmn bgba axet`,
     },
+    jwtSecret: 'jUrg@S3CM6/E4J2LCr=.RnUxni)NX%',
 };

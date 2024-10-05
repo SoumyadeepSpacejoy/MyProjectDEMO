@@ -50,7 +50,28 @@ const verifyUser = async (req, res) => {
     }
 };
 
+const logIn = async (req, res) => {
+    try {
+        const v = new Validator(req.body, {
+            email: 'required|email',
+            password: 'required|minLength:8|maxLength:20',
+        });
+
+        const matched = await v.check();
+
+        if (!matched) {
+            return res.status(400).json({ message: 'unable to perform operation.', description: v.errors });
+        }
+        const { email, password } = req.body;
+        const token = await userModel.generateToken(email, password);
+        return res.status(200).json({ token });
+    } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+};
+
 module.exports = {
     createUser,
     verifyUser,
+    logIn,
 };
