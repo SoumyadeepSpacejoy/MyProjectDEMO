@@ -44,8 +44,13 @@ const generateToken = async (email, password) => {
     return jwt.sign(tokenData, config.jwtSecret);
 };
 
+const decodeToken = (token) => {
+    return jwt.verify(token, config.jwtSecret);
+};
+
 module.exports = {
     create,
     isExist,
     generateToken,
+    decodeToken,
 };
