@@ -66,6 +66,39 @@ const logIn = async (req, res) => {
         const token = await userModel.generateToken(email, password);
         return res.status(200).json({ token });
     } catch (e) {
+        return res.status(401).json({ message: e.message });
+    }
+};
+
+const sendFriendRequest = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { user } = req;
+        await userModel.update(userId, { friendRequestReceived: [user.id] });
+        return res.status(200).json({ message: 'Request sent' });
+    } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+};
+
+const me = async (req, res) => {
+    try {
+        const { user } = req;
+        const result = await userModel.findOne(user.id);
+        return res.status(200).json(result);
+    } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+};
+
+const acceptRequest = async (req, res) => {
+    try {
+        const { user } = req;
+        const { accept } = req.params;
+
+        await userModel.acceptRequest(accept, user.id);
+        return res.status(200).json({ message: 'request accepted' });
+    } catch (e) {
         return res.status(400).json({ message: e.message });
     }
 };
@@ -74,4 +107,7 @@ module.exports = {
     createUser,
     verifyUser,
     logIn,
+    me,
+    sendFriendRequest,
+    acceptRequest,
 };

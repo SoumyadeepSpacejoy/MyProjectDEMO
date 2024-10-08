@@ -48,9 +48,36 @@ const decodeToken = (token) => {
     return jwt.verify(token, config.jwtSecret);
 };
 
+const update = (userId, data) => {
+    return User.updateOne({ _id: userId }, { $set: data });
+};
+
+const findOne = (userId) => {
+    return User.findOne({ _id: userId }).select('-password').populate({
+        path: 'friendRequestReceived',
+        select: 'name',
+    });
+};
+
+const acceptRequest = async (senderId, receiverId) => {
+    const receiver = await User.findOne({ _id: receiverId });
+
+    if (!receiver.friendRequestReceived || !receiver.friendRequestReceived.includes(senderId)) {
+        return Promise.reject(new Error('no request found!!'));
+    }
+
+    const requestArray = receiver.friendRequestReceived.filter((id) => id.toString() !== senderId);
+    receiver.friendRequestReceived = requestArray;
+    receiver.friends.push(senderId);
+    return receiver.save();
+};
+
 module.exports = {
     create,
     isExist,
     generateToken,
     decodeToken,
+    update,
+    findOne,
+    acceptRequest,
 };

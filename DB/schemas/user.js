@@ -1,4 +1,3 @@
-'use strict';
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
@@ -29,10 +28,24 @@ const fields = {
         enum: ['user', 'admin'],
         default: 'user',
     },
-    isActive: {
-        type: Schema.Types.Boolean,
-        default: false,
+    status: {
+        type: Schema.Types.String,
+        enum: ['online', 'offline'],
+        default: 'offline',
+        index: true,
     },
+    friends: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
+    friendRequestReceived: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
 };
 
 const modelSchema = new Schema(fields, { timestamps: true });
