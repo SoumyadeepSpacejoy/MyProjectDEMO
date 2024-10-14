@@ -34,31 +34,6 @@ const fields = {
         default: 'offline',
         index: true,
     },
-    friends: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
-    friendRequestReceived: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
-    blockList: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
-    groups: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Group',
-            index: true,
-        },
-    ],
 };
 
 const modelSchema = new Schema(fields, { timestamps: true, versionKey: false });

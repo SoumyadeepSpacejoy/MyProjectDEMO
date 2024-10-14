@@ -1,9 +1,11 @@
 const User = require('./user');
 const Message = require('./message');
-const Group = require('./group');
+const Friend = require('./friend');
+const Conversation = require('./conversation');
 
 module.exports = {
     User,
     Message,
-    Group,
+    Friend,
+    Conversation,
 };

@@ -3,33 +3,23 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const fields = {
-    conversation: {
-        type: Schema.Types.ObjectId,
-        ref: 'Conversation',
-        index: true,
-    },
-    sender: {
+    requester: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         index: true,
     },
-    text: {
-        type: Schema.Types.String,
+    recipient: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        index: true,
     },
-    seenBy: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
-    deletedFor: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
+    status: {
+        type: Schema.Types.String,
+        enum: ['requested', 'accepted', 'rejected', 'blocked'],
+        default: 'requested',
+    },
 };
 
 const modelSchema = new Schema(fields, { timestamps: true, versionKey: false });
 
-module.exports = mongoose.model('Message', modelSchema);
+module.exports = mongoose.model('Friend', modelSchema);
