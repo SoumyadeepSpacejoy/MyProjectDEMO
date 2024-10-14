@@ -48,13 +48,20 @@ const decodeToken = (token) => {
     return jwt.verify(token, config.jwtSecret);
 };
 
-const update = (userId, data) => {
-    return User.updateOne({ _id: userId }, { $set: data });
+const sendRequest = async (userId, reqId) => {
+    const user = await User.findOne({ _id: userId }).select('friendRequestReceived');
+    console.log('🚀 ~ sendRequest ~ user:', user);
+    if (user.friendRequestReceived.includes(reqId)) {
+        return Promise.reject(new Error('already in friend list'));
+    }
+
+    user.friendRequestReceived.push(reqId);
+    return user.save();
 };
 
 const findOne = (userId) => {
     return User.findOne({ _id: userId }).select('-password').populate({
-        path: 'friendRequestReceived',
+        path: 'friendRequestReceived friends',
         select: 'name',
     });
 };
@@ -72,12 +79,43 @@ const acceptRequest = async (senderId, receiverId) => {
     return receiver.save();
 };
 
+const updateFriendList = async (userId, friendId) => {
+    const user = await User.findOne({ _id: userId }).select('friends');
+    user.friends.push(friendId);
+    return user.save();
+};
+
+const unfriend = async (userId, friendId) => {
+    const user = await User.findOne({ _id: userId }).select('friends');
+    console.log('🚀 ~ unfriend ~ user:', user);
+
+    if (!user.friends.includes(friendId)) {
+        return Promise.reject(new Error('not a friend!!'));
+    }
+
+    const frndArr = user.friends.filter((id) => id.toString() !== friendId);
+    console.log('🚀 ~ unfriend ~ frndArr:', typeof frndArr);
+    user.friends = frndArr;
+    return user.save();
+};
+
+const updateUnFriendList = async (userId, friendId) => {
+    const user = await User.findOne({ _id: userId }).select('friends');
+    const frndArr = user.friends.map((id) => id.toString() !== friendId);
+    console.log('🚀 ~ updateUnFriendList ~ frndArr:', frndArr);
+    user.friends = frndArr;
+    return user.save();
+};
+
 module.exports = {
     create,
     isExist,
     generateToken,
     decodeToken,
-    update,
+    sendRequest,
     findOne,
     acceptRequest,
+    updateFriendList,
+    unfriend,
+    updateUnFriendList,
 };

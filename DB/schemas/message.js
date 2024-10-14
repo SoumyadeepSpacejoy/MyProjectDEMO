@@ -16,8 +16,13 @@ const fields = {
     text: {
         type: Schema.Types.String,
     },
+    group: {
+        type: Schema.Types.ObjectId,
+        ref: 'Group',
+        index: true,
+    },
 };
 
-const modelSchema = new Schema(fields, { timestamps: true });
+const modelSchema = new Schema(fields, { timestamps: true, versionKey: false });
 
 module.exports = mongoose.model('Message', modelSchema);

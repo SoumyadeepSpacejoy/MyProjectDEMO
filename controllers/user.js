@@ -44,7 +44,9 @@ const verifyUser = async (req, res) => {
         }
 
         await userModel.create(data);
-        return res.status(200).json({ message: 'otp verified and user created...' });
+        res.status(200).json({ message: 'otp verified and user created...' });
+        await cacheHelper.remove(key);
+        return;
     } catch (e) {
         return res.status(400), json({ message: e.message });
     }
@@ -74,7 +76,10 @@ const sendFriendRequest = async (req, res) => {
     try {
         const { userId } = req.params;
         const { user } = req;
-        await userModel.update(userId, { friendRequestReceived: [user.id] });
+        if (userId === user.id) {
+            return res.status(400).json({ message: 'own id received :(' });
+        }
+        await userModel.sendRequest(userId, user.id);
         return res.status(200).json({ message: 'Request sent' });
     } catch (e) {
         return res.status(400).json({ message: e.message });
@@ -96,9 +101,24 @@ const acceptRequest = async (req, res) => {
         const { user } = req;
         const { accept } = req.params;
 
-        await userModel.acceptRequest(accept, user.id);
+        await Promise.all([userModel.acceptRequest(accept, user.id), userModel.updateFriendList(accept, user.id)]);
         return res.status(200).json({ message: 'request accepted' });
     } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+};
+
+const unfriend = async (req, res) => {
+    try {
+        const { user } = req;
+        const { friendId } = req.params;
+
+        await userModel.unfriend(user.id, friendId);
+        await userModel.updateUnFriendList(friendId, user.id);
+
+        return res.status(200).json({ message: 'unfriend done' });
+    } catch (e) {
+        console.log('🚀 ~ unfriend ~ e:', e);
         return res.status(400).json({ message: e.message });
     }
 };
@@ -110,4 +130,5 @@ module.exports = {
     me,
     sendFriendRequest,
     acceptRequest,
+    unfriend,
 };

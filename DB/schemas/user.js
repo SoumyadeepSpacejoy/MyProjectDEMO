@@ -46,8 +46,21 @@ const fields = {
             ref: 'User',
         },
     ],
+    blockList: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
+    groups: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Group',
+            index: true,
+        },
+    ],
 };
 
-const modelSchema = new Schema(fields, { timestamps: true });
+const modelSchema = new Schema(fields, { timestamps: true, versionKey: false });
 
 module.exports = mongoose.model('User', modelSchema);
