@@ -16,12 +16,6 @@ const fields = {
     text: {
         type: Schema.Types.String,
     },
-    seenBy: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
     deletedFor: [
         {
             type: Schema.Types.ObjectId,

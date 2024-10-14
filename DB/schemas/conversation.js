@@ -24,11 +24,6 @@ const fields = {
         ref: 'User',
         index: true,
     },
-    lastMessage: {
-        type: Schema.Types.ObjectId,
-        ref: 'Message',
-        index: true,
-    },
 };
 
 const modelSchema = new Schema(fields, { timestamps: true, versionKey: false });

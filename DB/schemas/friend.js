@@ -15,7 +15,7 @@ const fields = {
     },
     status: {
         type: Schema.Types.String,
-        enum: ['requested', 'accepted', 'rejected', 'blocked'],
+        enum: ['requested', 'accepted', 'blocked'],
         default: 'requested',
     },
 };

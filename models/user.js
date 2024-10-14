@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../configs');
-const { User } = models;
+const { User, Friend } = models;
 
 const generateHash = (password) => {
     return bcrypt.hashSync(password, 10);
@@ -48,63 +48,54 @@ const decodeToken = (token) => {
     return jwt.verify(token, config.jwtSecret);
 };
 
-const sendRequest = async (userId, reqId) => {
-    const user = await User.findOne({ _id: userId }).select('friendRequestReceived');
-    console.log('🚀 ~ sendRequest ~ user:', user);
-    if (user.friendRequestReceived.includes(reqId)) {
-        return Promise.reject(new Error('already in friend list'));
-    }
-
-    user.friendRequestReceived.push(reqId);
-    return user.save();
+const sendRequest = (recipient, requester) => {
+    return Friend.create({ recipient, requester });
 };
 
-const findOne = (userId) => {
-    return User.findOne({ _id: userId }).select('-password').populate({
-        path: 'friendRequestReceived friends',
-        select: 'name',
+const acceptRequest = (recipient, requester) => {
+    return Friend.updateOne({ recipient, requester }, { $set: { status: 'accepted' } });
+};
+
+const getFriendList = async (userId) => {
+    const friends = await Friend.find({
+        $or: [
+            { requester: userId, status: 'accepted' },
+            { recipient: userId, status: 'accepted' },
+        ],
+    }).populate('requester recipient', 'name email phone');
+
+    return friends.map((frnd) => {
+        return frnd.requester._id.toString() === userId
+            ? {
+                  _id: frnd.recipient._id,
+                  name: frnd.recipient.name,
+                  email: frnd.recipient.email,
+                  phone: frnd.recipient.phone,
+              }
+            : {
+                  _id: frnd.requester._id,
+                  name: frnd.requester.name,
+                  email: frnd.requester.email,
+                  phone: frnd.requester.phone,
+              };
     });
 };
 
-const acceptRequest = async (senderId, receiverId) => {
-    const receiver = await User.findOne({ _id: receiverId });
-
-    if (!receiver.friendRequestReceived || !receiver.friendRequestReceived.includes(senderId)) {
-        return Promise.reject(new Error('no request found!!'));
-    }
-
-    const requestArray = receiver.friendRequestReceived.filter((id) => id.toString() !== senderId);
-    receiver.friendRequestReceived = requestArray;
-    receiver.friends.push(senderId);
-    return receiver.save();
+const getFriendRequestList = (userId) => {
+    return Friend.find({ recipient: userId, status: 'requested' }).populate('requester recipient', 'name email phone');
 };
 
-const updateFriendList = async (userId, friendId) => {
-    const user = await User.findOne({ _id: userId }).select('friends');
-    user.friends.push(friendId);
-    return user.save();
+const findOne = (userId) => {
+    return User.findOne({ _id: userId }).select('-password');
 };
 
-const unfriend = async (userId, friendId) => {
-    const user = await User.findOne({ _id: userId }).select('friends');
-    console.log('🚀 ~ unfriend ~ user:', user);
-
-    if (!user.friends.includes(friendId)) {
-        return Promise.reject(new Error('not a friend!!'));
-    }
-
-    const frndArr = user.friends.filter((id) => id.toString() !== friendId);
-    console.log('🚀 ~ unfriend ~ frndArr:', typeof frndArr);
-    user.friends = frndArr;
-    return user.save();
-};
-
-const updateUnFriendList = async (userId, friendId) => {
-    const user = await User.findOne({ _id: userId }).select('friends');
-    const frndArr = user.friends.map((id) => id.toString() !== friendId);
-    console.log('🚀 ~ updateUnFriendList ~ frndArr:', frndArr);
-    user.friends = frndArr;
-    return user.save();
+const unfriend = (userId, friendId) => {
+    return Friend.deleteOne({
+        $or: [
+            { requester: userId, recipient: friendId, status: 'accepted' },
+            { requester: friendId, recipient: userId, status: 'accepted' },
+        ],
+    });
 };
 
 module.exports = {
@@ -113,9 +104,9 @@ module.exports = {
     generateToken,
     decodeToken,
     sendRequest,
-    findOne,
     acceptRequest,
-    updateFriendList,
+    getFriendList,
+    findOne,
+    getFriendRequestList,
     unfriend,
-    updateUnFriendList,
 };

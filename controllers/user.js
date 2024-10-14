@@ -101,7 +101,7 @@ const acceptRequest = async (req, res) => {
         const { user } = req;
         const { accept } = req.params;
 
-        await Promise.all([userModel.acceptRequest(accept, user.id), userModel.updateFriendList(accept, user.id)]);
+        await userModel.acceptRequest(user.id, accept);
         return res.status(200).json({ message: 'request accepted' });
     } catch (e) {
         return res.status(400).json({ message: e.message });
@@ -114,11 +114,31 @@ const unfriend = async (req, res) => {
         const { friendId } = req.params;
 
         await userModel.unfriend(user.id, friendId);
-        await userModel.updateUnFriendList(friendId, user.id);
 
         return res.status(200).json({ message: 'unfriend done' });
     } catch (e) {
         console.log('🚀 ~ unfriend ~ e:', e);
+        return res.status(400).json({ message: e.message });
+    }
+};
+
+const friendList = async (req, res) => {
+    try {
+        const { user } = req;
+        const list = await userModel.getFriendList(user.id);
+        return res.status(200).json(list);
+    } catch (e) {
+        console.log('🚀 ~ friendList ~ e:', e);
+        return res.status(400).json({ message: e.message });
+    }
+};
+
+const getFriendRequestList = async (req, res) => {
+    try {
+        const { user } = req;
+        const list = await userModel.getFriendRequestList(user.id);
+        return res.status(200).json(list);
+    } catch (e) {
         return res.status(400).json({ message: e.message });
     }
 };
@@ -131,4 +151,6 @@ module.exports = {
     sendFriendRequest,
     acceptRequest,
     unfriend,
+    friendList,
+    getFriendRequestList,
 };
