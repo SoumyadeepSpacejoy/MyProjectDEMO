@@ -4,6 +4,7 @@ module.exports = {
     cache: {
         host: '127.0.0.1',
         port: '6379',
+        prodURI: 'redis://red-cs7kt4tumphs73a85tlg:6379'
     },
     nodemailer: {
         sender: 'helloworldcoding69@gmail.com',

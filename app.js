@@ -19,7 +19,7 @@ const init = async () => {
 
     require('./routes')(app);
 
-    const port = 3000;
+    const port = process.env.PORT;
     app.listen(port, () => {
         console.log(`server started on port ${port} 🚀`);
     });
