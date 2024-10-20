@@ -145,6 +145,16 @@ const getFriendRequestList = async (req, res) => {
 
 const userSearch = async (req, res) => {
     try {
+        const v = new Validator(req.body, {
+            search: 'required',
+        });
+
+        const matched = await v.check();
+
+        if (!matched) {
+            return res.status(400).json({ message: 'unable to perform operation.', description: v.errors });
+        }
+
         const { limit, skip } = req.query;
         const { user } = req;
         const { search } = req.body;
