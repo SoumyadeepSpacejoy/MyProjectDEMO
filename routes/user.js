@@ -11,5 +11,6 @@ router.put('/acceptRequest/:accept', authMiddleware.user, user.acceptRequest);
 router.put('/unfriend/:friendId', authMiddleware.user, user.unfriend);
 router.get('/friendList', authMiddleware.user, user.friendList);
 router.get('/requestList', authMiddleware.user, user.getFriendRequestList);
+router.post('/search', authMiddleware.user, user.userSearch);
 
 module.exports = router;

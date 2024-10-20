@@ -1,6 +1,6 @@
 const { Validator } = require('node-input-validator');
-const { userModel } = require('../models');
-const { cacheHelper, randomHelper, mailHelper } = require('../helpers');
+const { userModel, searchModel } = require('../models');
+const { cacheHelper, randomHelper, mailHelper, validateHelper } = require('../helpers');
 
 const createUser = async (req, res) => {
     try {
@@ -143,6 +143,19 @@ const getFriendRequestList = async (req, res) => {
     }
 };
 
+const userSearch = async (req, res) => {
+    try {
+        const { limit, skip } = req.query;
+        const { user } = req;
+        const { search } = req.body;
+
+        const users = await searchModel.search(search, user, skip, limit);
+        return res.status(users.users.length !== 0 ? 200 : 400).json(users);
+    } catch (e) {
+        return res.status(400).json({ message: e.message });
+    }
+};
+
 module.exports = {
     createUser,
     verifyUser,
@@ -153,4 +166,5 @@ module.exports = {
     unfriend,
     friendList,
     getFriendRequestList,
+    userSearch,
 };

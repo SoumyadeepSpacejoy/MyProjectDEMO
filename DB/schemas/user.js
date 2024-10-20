@@ -19,7 +19,7 @@ const fields = {
         index: true,
     },
     phone: {
-        type: Schema.Types.Number,
+        type: Schema.Types.String,
         required: true,
         index: true,
     },
