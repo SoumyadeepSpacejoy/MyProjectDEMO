@@ -1,7 +1,8 @@
 const { createClient } = require('redis');
-const { cache } = require('../configs');
+const config = require('../configs');
+const env = process.env.NODE_ENV;
 
-let connectUrl = process.env.NODE_ENV !== 'production' ? `redis://${cache.host}:${cache.port}` : cache.prodURI;
+let connectUrl = `redis://${config.redis.host}:${config.redis.port}`;
 
 const client = createClient({
     url: connectUrl,
